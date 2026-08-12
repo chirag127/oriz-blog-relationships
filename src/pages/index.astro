@@ -1,18 +1,16 @@
 ---
 /**
- * /  — Between homepage ("The Between").
+ * /  — "Between" homepage (letter / correspondence archetype).
  *
- * Hero = thesis (no big number, no gradient template): a plain-spoken
- * statement that relationships live in the space between two people, set in
- * Fraunces, with a single connective thread glyph drawn beside it.
+ * The page is a small stack of letters left on a desk. A short opening note
+ * (the hero = thesis: the relationship is the space between two people), then
+ * the newest letter opened flat on its stationery, then a stack of folded
+ * letter-previews — each with a dateline, a salutation, the subject line as
+ * its title, an opening paragraph, and a hand-signed sign-off.
  *
- * Below, the RECENT list is the signature element: a conversation. A vertical
- * thread runs down the column; each post is a "turn" alternating left/right,
- * anchored to a node on the thread. Relationships are the thread between two
- * people — the layout holds that space literally.
- *
- * Desks (Connect / Repair / Distance / Boundaries / Self) each carry their
- * own quiet marker colour (--v-*). No cover images, no cards.
+ * No card grid, no cover images, no alternating thread. Just correspondence.
+ * Desks (Connect / Repair / Distance / Boundaries / Self) tint each letter's
+ * dateline rule with its quiet marker colour (--v-*).
  */
 import BaseLayout from '~/layouts/BaseLayout.astro'
 import {
@@ -28,11 +26,14 @@ import { SITE_CONFIG } from '~/lib/config'
 
 const allPosts = await getPublishedPosts()
 const lead = allPosts[0]
-const recentPosts = allPosts.slice(1, 9)
+const rest = allPosts.slice(1, 9)
 const cats = await getCategoriesWithCounts()
 
 const leadVertical = lead ? postVertical(lead) : 'personal'
 const leadRt = lead ? (lead.data.readingTime ?? readingTimeFor(lead)) : ''
+
+const longDate = (d: Date) =>
+  d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -44,79 +45,74 @@ const jsonLd = {
 }
 ---
 
-<BaseLayout
-  title="Between — a relationships letter"
-  description={SITE_CONFIG.description}
-  jsonLd={jsonLd}
-  hideSidebar
->
-  <div class="container-page">
-    {/* Hero — thesis. */}
-    <section class="hero" aria-label="Introduction">
-      <p class="hero-eyebrow mono">A relationships letter</p>
-      <h1 class="hero-thesis">
-        The relationship isn't you, and isn't them.
-        It's the <span class="hero-accent">space&nbsp;between</span> — and that's what you can tend.
+<BaseLayout title="Between — a relationships letter" description={SITE_CONFIG.description} jsonLd={jsonLd}>
+  <div class="desk">
+    {/* Hero — thesis, written as the opening line of a letter. */}
+    <section class="opening" aria-label="Introduction">
+      <p class="opening-eyebrow mono">A letter, once in a while</p>
+      <h1 class="opening-thesis">
+        The relationship isn't you, and it isn't them.
+        It's the <span class="opening-accent">space&nbsp;between</span> — and that's the part you can tend.
       </h1>
-      <p class="hero-lede">
-        Practical writing on saying the hard thing kindly, keeping love across
-        distance, and holding a boundary without a fight. Short letters you can
-        use the same day.
+      <p class="opening-lede">
+        Short letters on saying the hard thing kindly, keeping love across a
+        distance, and holding a boundary without a fight. Read one, use it the
+        same day, write back if it lands.
       </p>
-      <p class="hero-actions">
-        <a class="hero-cta" href={lead ? `/blog/${lead.id}` : '/archive/'}>Read the latest letter</a>
-        <a class="hero-alt" href="/archive/">Browse the archive</a>
+      <p class="opening-actions">
+        <a class="opening-cta" href={lead ? `/blog/${lead.id}` : '/archive/'}>Open the latest letter</a>
+        <a class="opening-alt" href="/archive/">Read every letter →</a>
       </p>
     </section>
 
+    {/* The newest letter — opened flat on its stationery. */}
     {lead && (
-      <section class="lead" data-vertical={leadVertical} aria-labelledby="lead-title">
-        <a class="lead-link" href={`/blog/${lead.id}`}>
-          <span class="lead-kicker mono">
-            <span class="lead-tick" aria-hidden="true"></span>
-            <span class="lead-desk">{verticalLabel(leadVertical)}</span>
-            <span class="lead-flag">Latest letter</span>
-          </span>
-          <h2 id="lead-title" class="lead-title">{lead.data.title}</h2>
-          <p class="lead-dek">{lead.data.description}</p>
-          <span class="lead-meta mono">
-            <time datetime={lead.data.pubDate.toISOString()}>{lead.data.pubDate.toISOString().slice(0, 10)}</time>
-            <span aria-hidden="true">·</span>
-            <span>{leadRt}</span>
-          </span>
+      <article class="letter letter-open" data-vertical={leadVertical} aria-labelledby="lead-title">
+        <header class="letter-head">
+          <span class="letter-desk mono">{verticalLabel(leadVertical)} desk</span>
+          <time class="letter-date mono" datetime={lead.data.pubDate.toISOString()}>{longDate(lead.data.pubDate)}</time>
+        </header>
+        <p class="letter-salutation">Dear reader,</p>
+        <a class="letter-link" href={`/blog/${lead.id}`}>
+          <h2 id="lead-title" class="letter-subject">{lead.data.title}</h2>
         </a>
+        <p class="letter-body">{lead.data.description}</p>
+        <p class="letter-signoff">
+          <a class="letter-more" href={`/blog/${lead.id}`}>Read the rest of this letter →</a>
+          <span class="letter-rt mono">{leadRt}</span>
+        </p>
+      </article>
+    )}
+
+    {/* The stack — folded letter-previews, one after another. */}
+    {rest.length > 0 && (
+      <section class="stack" aria-labelledby="s-stack">
+        <h2 id="s-stack" class="stack-h mono">Earlier letters</h2>
+        <ol class="stack-list" role="list">
+          {rest.map((p) => (
+            <li class="letter letter-fold" data-vertical={postVertical(p)}>
+              <a class="letter-link" href={`/blog/${p.id}`}>
+                <header class="letter-head">
+                  <span class="letter-desk mono">{verticalLabel(postVertical(p))} desk</span>
+                  <time class="letter-date mono" datetime={p.data.pubDate.toISOString()}>{longDate(p.data.pubDate)}</time>
+                </header>
+                <h3 class="letter-subject letter-subject-sm">{p.data.title}</h3>
+                <p class="letter-body letter-body-sm">{p.data.description}</p>
+                <span class="letter-rt mono">{p.data.readingTime ?? readingTimeFor(p)}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+        <p class="stack-all">
+          <a href="/archive/">All {allPosts.length} letters →</a>
+        </p>
       </section>
     )}
 
-    {/* Signature — the conversation thread. */}
-    <section class="thread-section" aria-labelledby="s-recent">
-      <h2 id="s-recent" class="section-h mono">The conversation</h2>
-      <ol class="thread" role="list">
-        {recentPosts.map((p, i) => (
-          <li class={`turn ${i % 2 === 0 ? 'turn-a' : 'turn-b'}`} data-vertical={postVertical(p)}>
-            <span class="turn-node" aria-hidden="true"></span>
-            <a class="turn-link" href={`/blog/${p.id}`}>
-              <span class="turn-kicker mono">
-                {verticalLabel(postVertical(p))}
-                <span class="turn-sep" aria-hidden="true">·</span>
-                <time datetime={p.data.pubDate.toISOString()}>{p.data.pubDate.toISOString().slice(0, 10)}</time>
-              </span>
-              <span class="turn-title">{p.data.title}</span>
-              <span class="turn-dek">{p.data.description}</span>
-              <span class="turn-rt mono">{p.data.readingTime ?? readingTimeFor(p)}</span>
-            </a>
-          </li>
-        ))}
-      </ol>
-      <p class="all-link">
-        <a href="/archive/">Read all {allPosts.length} letters →</a>
-      </p>
-    </section>
-
-    {/* Desks — one quiet typographic row. */}
+    {/* Desks — the drawers these letters are filed in. One quiet line. */}
     {cats.length > 0 && (
       <section class="desks" aria-labelledby="s-desks">
-        <h2 id="s-desks" class="section-h mono">By desk</h2>
+        <h2 id="s-desks" class="stack-h mono">Filed by desk</h2>
         <p class="desks-row">
           {cats.map((c, i) => (
             <>
@@ -134,333 +130,202 @@ const jsonLd = {
 </BaseLayout>
 
 <style>
-  .container-page {
-    max-width: 880px;
+  /* The desk: one intimate reading column, letters stacked down it. */
+  .desk {
+    max-width: 640px;
     margin-inline: auto;
     padding-inline: clamp(1.25rem, 4vw, 2rem);
   }
 
-  /* ── Hero — thesis ─────────────────────────────────────────────────── */
-
-  .hero {
-    padding-block: clamp(3rem, 9vw, 6rem) clamp(2rem, 5vw, 3.25rem);
-    position: relative;
+  /* ── Opening note (hero = thesis) ─────────────────────────────────── */
+  .opening {
+    padding-block: clamp(2.5rem, 7vw, 4.5rem) clamp(2rem, 5vw, 3rem);
   }
-  /* connective thread beside the thesis — the brand mark, drawn large */
-  .hero::before {
-    content: '';
-    position: absolute;
-    left: -1.25rem;
-    top: clamp(4.2rem, 11vw, 7rem);
-    bottom: clamp(4rem, 8vw, 5rem);
-    width: 2px;
-    background: linear-gradient(180deg, color-mix(in oklab, var(--ink) 40%, var(--paper)), var(--accent));
-    border-radius: 999px;
-  }
-  @media (max-width: 640px) {
-    .hero::before { display: none; }
-  }
-  .hero-eyebrow {
+  .opening-eyebrow {
     font-size: 11px;
-    letter-spacing: 0.24em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--accent);
-    margin: 0 0 1.25rem;
+    margin: 0 0 1.1rem;
     font-weight: 500;
   }
-  .hero-thesis {
+  .opening-thesis {
     font-family: var(--font-display);
     font-optical-sizing: auto;
-    font-size: clamp(2.1rem, 6.5vw, 3.8rem);
+    font-size: clamp(1.9rem, 5.6vw, 3.1rem);
     font-weight: 380;
-    line-height: 1.08;
+    line-height: 1.14;
     letter-spacing: -0.02em;
     color: var(--ink);
     margin: 0;
-    max-width: 15ch;
+    max-width: 18ch;
   }
-  .hero-accent {
-    font-style: italic;
-    font-weight: 460;
-    color: var(--accent);
-  }
-  .hero-lede {
+  .opening-accent { font-style: italic; font-weight: 460; color: var(--accent); }
+  .opening-lede {
     font-family: var(--font-body);
-    font-size: clamp(1.0625rem, 2.2vw, 1.25rem);
-    line-height: 1.6;
+    font-size: clamp(1.05rem, 2.2vw, 1.2rem);
+    line-height: 1.65;
     color: var(--ink-mute);
-    margin: 1.5rem 0 0;
-    max-width: 46ch;
+    margin: 1.35rem 0 0;
+    max-width: 48ch;
   }
-  .hero-actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1rem 1.5rem;
-    margin: 2rem 0 0;
+  .opening-actions {
+    display: flex; flex-wrap: wrap; align-items: center;
+    gap: 0.9rem 1.5rem; margin: 1.9rem 0 0;
   }
-  .hero-cta {
+  .opening-cta {
     display: inline-block;
     background: var(--accent);
     color: var(--color-accent-fg);
     font-family: var(--font-mono);
-    font-size: 13px;
-    letter-spacing: 0.02em;
+    font-size: 13px; letter-spacing: 0.02em;
     padding: 0.7rem 1.25rem;
     border-radius: var(--radius-button);
     text-decoration: none;
-    transition:
-      transform var(--dur-fast) var(--ease-out),
-      background var(--dur-fast) ease;
+    transition: transform var(--dur-fast) var(--ease-out), background var(--dur-fast) ease;
   }
-  .hero-cta:hover {
-    transform: translateY(-1px);
-    background: color-mix(in oklab, var(--accent) 88%, var(--ink));
+  .opening-cta:hover { transform: translateY(-1px); background: color-mix(in oklab, var(--accent) 88%, var(--ink)); }
+  .opening-cta:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  .opening-alt {
+    font-family: var(--font-mono); font-size: 13px; color: var(--ink-mute);
+    text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--rule-strong);
   }
-  .hero-alt {
-    font-family: var(--font-mono);
-    font-size: 13px;
-    color: var(--ink-mute);
-    text-decoration: underline;
-    text-underline-offset: 4px;
-    text-decoration-color: var(--rule-strong);
-  }
-  .hero-alt:hover { color: var(--accent); text-decoration-color: var(--accent); }
+  .opening-alt:hover { color: var(--accent); text-decoration-color: var(--accent); }
 
-  /* ── Lead / latest letter ──────────────────────────────────────────── */
-
-  .lead {
+  /* ── A letter, on stationery ──────────────────────────────────────── */
+  .letter {
     --v: var(--v-personal);
-    padding: clamp(1.5rem, 4vw, 2rem);
+    position: relative;
     background: var(--paper-2);
     border: 1px solid var(--rule);
     border-radius: var(--radius-card);
-    margin-bottom: clamp(2.5rem, 6vw, 4rem);
+    padding: clamp(1.5rem, 4vw, 2.25rem);
   }
-  .lead[data-vertical='dev'] { --v: var(--v-dev); }
-  .lead[data-vertical='finance'] { --v: var(--v-finance); }
-  .lead[data-vertical='culture'] { --v: var(--v-culture); }
-  .lead[data-vertical='health'] { --v: var(--v-health); }
-  .lead-link { display: grid; gap: 0.625rem; color: var(--ink); text-decoration: none; }
-  .lead-kicker {
-    display: inline-flex; align-items: center; gap: 0.5rem;
-    font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-mute);
-  }
-  .lead-tick { width: 8px; height: 8px; border-radius: 999px; background: var(--v); flex: 0 0 auto; }
-  .lead-desk { color: var(--v); font-weight: 500; }
-  .lead-flag { border-left: 1px solid var(--rule-strong); padding-left: 0.5rem; color: var(--accent); }
-  .lead-title {
-    font-family: var(--font-display);
-    font-size: clamp(1.6rem, 4vw, 2.35rem);
-    font-weight: 440;
-    letter-spacing: -0.02em;
-    line-height: 1.12;
-    margin: 0;
-    max-width: 22ch;
-  }
-  .lead-link:hover .lead-title { color: var(--accent); }
-  .lead-dek {
-    font-family: var(--font-body);
-    font-size: 1.0625rem;
-    line-height: 1.55;
-    color: var(--ink-mute);
-    margin: 0;
-    max-width: 58ch;
-  }
-  .lead-meta { display: inline-flex; gap: 0.5rem; font-size: 11px; letter-spacing: 0.06em; color: var(--ink-mute); }
-
-  /* ── Section heading ───────────────────────────────────────────────── */
-
-  .section-h {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.22em;
-    color: var(--ink-mute);
-    font-weight: 500;
-    margin: 0 0 1.75rem;
-  }
-
-  /* ── Signature: the conversation thread ────────────────────────────── */
-
-  .thread-section {
-    padding-block: 0 clamp(2.5rem, 6vw, 3.5rem);
-  }
-  .thread {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    position: relative;
-  }
-  /* the connective thread runs down the centre (desktop) / left (mobile) */
-  .thread::before {
+  .letter[data-vertical='dev'] { --v: var(--v-dev); }
+  .letter[data-vertical='finance'] { --v: var(--v-finance); }
+  .letter[data-vertical='culture'] { --v: var(--v-culture); }
+  .letter[data-vertical='health'] { --v: var(--v-health); }
+  /* the desk's colour, as a torn edge down the left margin */
+  .letter::before {
     content: '';
     position: absolute;
-    top: 0.75rem;
-    bottom: 0.75rem;
-    left: 50%;
-    width: 2px;
-    margin-left: -1px;
-    background: color-mix(in oklab, var(--ink) 22%, var(--paper));
+    left: 0; top: 1.25rem; bottom: 1.25rem;
+    width: 3px;
+    background: var(--v);
     border-radius: 999px;
+    opacity: 0.85;
   }
-  .turn {
-    --v: var(--v-personal);
-    position: relative;
-    width: calc(50% - 2.25rem);
-    padding-block: 1rem;
-  }
-  .turn-a { margin-right: auto; text-align: right; }
-  .turn-b { margin-left: auto; text-align: left; }
-  .turn[data-vertical='dev'] { --v: var(--v-dev); }
-  .turn[data-vertical='finance'] { --v: var(--v-finance); }
-  .turn[data-vertical='culture'] { --v: var(--v-culture); }
-  .turn[data-vertical='health'] { --v: var(--v-health); }
 
-  /* the node on the thread */
-  .turn-node {
-    position: absolute;
-    top: 1.6rem;
-    width: 11px;
-    height: 11px;
-    border-radius: 999px;
-    background: var(--paper);
-    border: 2px solid var(--v);
-    z-index: 1;
-    transition:
-      background var(--dur-fast) ease,
-      transform var(--dur-base) var(--ease-out);
-  }
-  .turn-a .turn-node { right: -2.75rem; }
-  .turn-b .turn-node { left: -2.75rem; }
-  .turn:hover .turn-node { background: var(--v); transform: scale(1.25); }
+  .letter-open { margin-bottom: clamp(2rem, 5vw, 3rem); }
 
-  .turn-link {
-    display: grid;
-    gap: 0.3rem;
-    color: var(--ink);
-    text-decoration: none;
+  .letter-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 1rem; margin-bottom: 1rem;
+    border-bottom: 1px solid color-mix(in oklab, var(--v) 30%, var(--rule));
+    padding-bottom: 0.6rem;
   }
-  .turn-kicker {
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--v);
-    font-weight: 500;
-    display: inline-flex;
-    gap: 0.4rem;
-    align-items: center;
+  .letter-desk {
+    font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--v); font-weight: 600;
   }
-  .turn-a .turn-kicker { justify-content: flex-end; }
-  .turn-sep { color: var(--ink-mute); }
-  .turn-kicker time { color: var(--ink-mute); letter-spacing: 0.04em; }
-  .turn-title {
+  .letter-date {
+    font-size: 11px; letter-spacing: 0.04em; color: var(--ink-mute);
+    text-align: right; flex: 0 0 auto;
+  }
+  .letter-salutation {
+    margin: 0 0 0.5rem;
+    font-family: var(--font-body); font-style: italic;
+    font-size: 1.05rem; color: var(--ink-mute);
+  }
+  .letter-link { display: block; color: var(--ink); text-decoration: none; }
+  .letter-subject {
     font-family: var(--font-display);
-    font-size: 1.25rem;
-    font-weight: 440;
-    letter-spacing: -0.015em;
-    color: var(--ink);
-    line-height: 1.22;
+    font-size: clamp(1.55rem, 4vw, 2.2rem);
+    font-weight: 440; letter-spacing: -0.02em; line-height: 1.15;
+    margin: 0; max-width: 24ch;
   }
-  .turn-link:hover .turn-title { color: var(--accent); }
-  .turn-dek {
+  .letter-link:hover .letter-subject { color: var(--accent); }
+  .letter-subject-sm { font-size: clamp(1.25rem, 3vw, 1.55rem); }
+  .letter-body {
     font-family: var(--font-body);
-    font-size: 15px;
-    color: var(--ink-mute);
-    line-height: 1.5;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    overflow: hidden;
+    font-size: 1.0625rem; line-height: 1.62; color: var(--ink);
+    margin: 0.75rem 0 0; max-width: 56ch;
   }
-  .turn-rt {
-    font-size: 11px;
-    letter-spacing: 0.04em;
-    color: var(--ink-mute);
+  .letter-body-sm {
+    font-size: 15px; color: var(--ink-mute);
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3;
+    line-clamp: 3; overflow: hidden;
   }
+  .letter-signoff {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 1rem; margin: 1.4rem 0 0; flex-wrap: wrap;
+  }
+  .letter-more {
+    font-family: var(--font-mono); font-size: 13px; color: var(--accent);
+    text-decoration: none; border-bottom: 1px solid transparent;
+  }
+  .letter-more:hover { border-bottom-color: var(--accent); }
+  .letter-rt { font-size: 11px; letter-spacing: 0.04em; color: var(--ink-mute); }
 
-  @media (max-width: 640px) {
-    /* On mobile the thread moves to the left; every turn is a left turn. */
-    .thread::before { left: 5px; }
-    .turn,
-    .turn-a,
-    .turn-b {
-      width: 100%;
-      margin: 0;
-      text-align: left;
-      padding-left: 1.75rem;
-    }
-    .turn-a .turn-node,
-    .turn-b .turn-node { left: 0; right: auto; }
-    .turn-a .turn-kicker { justify-content: flex-start; }
-  }
+  /* folded previews sit a touch flatter than the opened lead */
+  .letter-fold { background: var(--paper); }
+  .letter-fold .letter-rt { display: inline-block; margin-top: 0.9rem; }
+  .letter-fold:focus-within,
+  .letter-fold:hover { border-color: color-mix(in oklab, var(--v) 45%, var(--rule)); }
 
-  .all-link {
-    margin: 2rem 0 0;
-    text-align: center;
-    font-family: var(--font-mono);
-    font-size: 13px;
+  /* ── The stack ────────────────────────────────────────────────────── */
+  .stack { padding-block: 0 clamp(2rem, 5vw, 3rem); }
+  .stack-h {
+    font-family: var(--font-mono); font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.2em; color: var(--ink-mute); font-weight: 500;
+    margin: 0 0 1.25rem;
   }
-  .all-link a {
-    color: var(--ink-mute);
-    text-decoration: underline;
-    text-underline-offset: 4px;
-    text-decoration-color: var(--rule-strong);
+  .stack-list {
+    list-style: none; margin: 0; padding: 0;
+    display: flex; flex-direction: column; gap: clamp(1rem, 2.5vw, 1.4rem);
   }
-  .all-link a:hover { color: var(--accent); text-decoration-color: var(--accent); }
+  .stack-all {
+    margin: 1.75rem 0 0; text-align: center;
+    font-family: var(--font-mono); font-size: 13px;
+  }
+  .stack-all a {
+    color: var(--ink-mute); text-decoration: underline;
+    text-underline-offset: 4px; text-decoration-color: var(--rule-strong);
+  }
+  .stack-all a:hover { color: var(--accent); text-decoration-color: var(--accent); }
 
-  /* ── Desks (one row) ──────────────────────────────────────────────── */
-
-  .desks {
-    border-top: 1px solid var(--rule);
-    padding-block: clamp(2rem, 5vw, 3rem);
-  }
-  .desks-row {
-    margin: 0;
-    line-height: 2.1;
-    color: var(--ink);
-  }
-  .desks-link {
-    --v: var(--v-personal);
-    color: var(--ink);
-    text-decoration: none;
-    margin-inline: 0.125rem;
-  }
+  /* ── Desks (one filing line) ──────────────────────────────────────── */
+  .desks { border-top: 1px solid var(--rule); padding-block: clamp(2rem, 5vw, 3rem); }
+  .desks-row { margin: 0; line-height: 2.1; color: var(--ink); }
+  .desks-link { --v: var(--v-personal); color: var(--ink); text-decoration: none; }
   .desks-link[data-vertical='dev'] { --v: var(--v-dev); }
   .desks-link[data-vertical='finance'] { --v: var(--v-finance); }
   .desks-link[data-vertical='culture'] { --v: var(--v-culture); }
   .desks-link[data-vertical='health'] { --v: var(--v-health); }
   .desks-link:hover .desks-name { color: var(--v); }
   .desks-name {
-    font-family: var(--font-display);
-    font-size: 1.15rem;
-    font-weight: 440;
-    font-style: italic;
-    letter-spacing: -0.01em;
+    font-family: var(--font-display); font-size: 1.15rem; font-weight: 440;
+    font-style: italic; letter-spacing: -0.01em;
   }
-  .desks-count {
-    color: var(--ink-mute);
-    font-family: var(--font-mono);
-    font-size: 11px;
-    margin-left: 0.25rem;
-  }
-  .desks-dot { color: var(--rule-strong); margin-inline: 0.625rem; }
+  .desks-count { color: var(--ink-mute); font-family: var(--font-mono); font-size: 11px; margin-left: 0.25rem; }
+  .desks-dot { color: var(--rule-strong); margin-inline: 0.55rem; }
 
-  /* scroll-reveal for thread turns — respectful of reduced motion */
+  /* focus-visible everywhere */
+  .letter-link:focus-visible,
+  .desks-link:focus-visible,
+  .stack-all a:focus-visible,
+  .letter-more:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px;
+  }
+
+  /* letters arrive one after another, like a stack being set down */
   @media (prefers-reduced-motion: no-preference) {
-    .turn { opacity: 0; transform: translateY(10px); animation: turn-in 0.5s var(--ease-out) forwards; }
-    .turn:nth-child(1) { animation-delay: 0.02s; }
-    .turn:nth-child(2) { animation-delay: 0.08s; }
-    .turn:nth-child(3) { animation-delay: 0.14s; }
-    .turn:nth-child(4) { animation-delay: 0.2s; }
-    .turn:nth-child(5) { animation-delay: 0.26s; }
-    .turn:nth-child(n + 6) { animation-delay: 0.3s; }
-    @keyframes turn-in {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+    .letter { opacity: 0; transform: translateY(12px); animation: letter-in 0.5s var(--ease-out) forwards; }
+    .letter-open { animation-delay: 0.04s; }
+    .stack-list .letter:nth-child(1) { animation-delay: 0.1s; }
+    .stack-list .letter:nth-child(2) { animation-delay: 0.16s; }
+    .stack-list .letter:nth-child(3) { animation-delay: 0.22s; }
+    .stack-list .letter:nth-child(n + 4) { animation-delay: 0.28s; }
+    @keyframes letter-in { to { opacity: 1; transform: translateY(0); } }
   }
 </style>
