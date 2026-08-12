@@ -1,0 +1,103 @@
+---
+/**
+ * LetterTone — signature "Between" component.
+ *
+ * Renders a small tone-pill unique to this blog: each "desk" (vertical) maps
+ * to a one-word emotional register + a Unicode dingbat glyph that lives in the
+ * relationships vocabulary.
+ *
+ *   Connect     ♡  — open-heart, warmth
+ *   Repair      ⌖  — targeting, working something out
+ *   Distance    ↔  — apart but still tethered
+ *   Boundaries  ◻  — clear edge, held space
+ *   Self        ○  — the self-circle
+ *
+ * Used in PostCard, the lead letter on index.astro, and as a small badge in
+ * the blog post header. Pure CSS — no JS, no images, fully accessible.
+ */
+
+export interface Props {
+  /** Internal vertical id — 'dev' | 'finance' | 'culture' | 'health' | 'personal' */
+  vertical: string
+  /** Render size: 'sm' (inline pill) | 'md' (card badge) | 'lg' (post header) */
+  size?: 'sm' | 'md' | 'lg'
+  class?: string
+}
+
+const { vertical, size = 'sm', class: cls } = Astro.props
+
+const TONES: Record<string, { label: string; glyph: string }> = {
+  dev:      { label: 'Connect',    glyph: '♡' },
+  finance:  { label: 'Repair',     glyph: '⌖' },
+  culture:  { label: 'Distance',   glyph: '↔' },
+  health:   { label: 'Boundaries', glyph: '◻' },
+  personal: { label: 'Self',       glyph: '○' },
+}
+
+const tone = TONES[vertical] ?? TONES.personal
+---
+
+<span
+  class:list={['letter-tone', `letter-tone--${vertical}`, `letter-tone--${size}`, cls]}
+  data-vertical={vertical}
+  aria-label={`Desk: ${tone.label}`}
+  title={`${tone.label} desk`}
+>
+  <span class="lt-glyph" aria-hidden="true">{tone.glyph}</span>
+  <span class="lt-label">{tone.label}</span>
+</span>
+
+<style>
+  .letter-tone {
+    --v: var(--v-personal);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    font-family: var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 1px solid color-mix(in oklab, var(--v) 45%, var(--rule));
+    border-radius: 999px;
+    color: var(--v);
+    background: color-mix(in oklab, var(--v) 8%, var(--paper));
+    line-height: 1;
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  /* vertical colours */
+  .letter-tone--dev      { --v: var(--v-dev); }
+  .letter-tone--finance  { --v: var(--v-finance); }
+  .letter-tone--culture  { --v: var(--v-culture); }
+  .letter-tone--health   { --v: var(--v-health); }
+  .letter-tone--personal { --v: var(--v-personal); }
+
+  /* sizes */
+  .letter-tone--sm {
+    font-size: 9px;
+    padding: 0.2em 0.55em;
+  }
+  .letter-tone--md {
+    font-size: 10px;
+    padding: 0.25em 0.65em;
+  }
+  .letter-tone--lg {
+    font-size: 11px;
+    padding: 0.3em 0.8em;
+  }
+
+  .lt-glyph {
+    font-style: normal;
+    line-height: 1;
+    /* Unicode symbols scale with font-size; no extra sizing needed */
+  }
+  .lt-label {
+    font-weight: 500;
+  }
+
+  /* in high-contrast mode: solid border, no tinted bg */
+  [data-theme='hc'] .letter-tone {
+    background: transparent;
+    border-color: var(--v);
+  }
+</style>

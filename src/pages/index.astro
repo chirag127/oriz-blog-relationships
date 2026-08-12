@@ -12,6 +12,7 @@
  * Desks (Connect / Repair / Distance / Boundaries / Self) tint each letter's
  * dateline rule with its quiet marker colour (--v-*).
  */
+import LetterTone from '~/components/LetterTone.astro'
 import BaseLayout from '~/layouts/BaseLayout.astro'
 import {
   getCategoriesWithCounts,
@@ -70,6 +71,7 @@ const jsonLd = {
       <article class="letter letter-open" data-vertical={leadVertical} aria-labelledby="lead-title">
         <header class="letter-head">
           <span class="letter-desk mono">{verticalLabel(leadVertical)} desk</span>
+          <LetterTone vertical={leadVertical} size="sm" />
           <time class="letter-date mono" datetime={lead.data.pubDate.toISOString()}>{longDate(lead.data.pubDate)}</time>
         </header>
         <p class="letter-salutation">Dear reader,</p>
