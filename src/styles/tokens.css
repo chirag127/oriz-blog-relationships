@@ -1,0 +1,227 @@
+/*
+ * tokens.css — oriz-blog-relationships identity ("The Between", 2026-08-12).
+ *
+ * Relationships live in the space between two people. Warm dawn-blush paper,
+ * deep plum-aubergine ink (NEVER black), one calm sage-teal accent for the
+ * "reply / connection" moments, muted clay-rose for warm human emphasis.
+ *
+ *   Warm blush paper · deep plum ink · sage-teal accent · clay-rose warm
+ *   · Fraunces display · Newsreader body · Spline Sans Mono meta
+ *
+ * Deliberately NOT the Signal-Press amber/serif newspaper look of the sister
+ * blogs, and NOT the cream+terracotta AI default (this blush is pinker/warmer,
+ * paired with plum ink + sage accent instead of black + terracotta).
+ *
+ * Every --color-* / legacy name is kept as an alias so chrome/legal/Footer
+ * components (which consume the shell token names) compile unchanged.
+ * Theme modes:
+ *   :root                              → light blush (default identity)
+ *   [data-theme="light"]               → light, always
+ *   @media (prefers-color-scheme:dark) → warm dusk dark, UNLESS forced light
+ *   [data-theme="dark"]                → warm dusk dark, always
+ *   [data-theme="hc"]                  → high contrast
+ */
+:root {
+  color-scheme: light;
+
+  /* ── "The Between" — light blush palette (default identity) ───────────
+     Warm rosy paper, deep plum ink, sage-teal connection accent. */
+  --brand: #4e8577; /* sage-teal — links, active, the "reply" accent */
+  --brand-soft: #e3ece6; /* pale sage tint — hover, chips */
+  --success: #4e8577;
+  --danger-color: #b0483a;
+
+  --paper: #f7ede8; /* warm dawn-blush paper (page bg) */
+  --paper-2: #efe0d9; /* raised blush panel / surface */
+  --surface: var(--paper-2);
+  --ink: #3a2a3f; /* deep plum-aubergine ink (never black) */
+  --ink-mute: #7a6b78; /* muted mauve secondary */
+  --rule: #e2d1c8; /* soft blush hairlines */
+  --rule-strong: #d3bcb0; /* heavier rule */
+
+  /* warm human emphasis — clay-rose, used sparingly */
+  --clay: #c46a5a;
+
+  /* canonical accent — sage-teal. Everything routes through --accent.
+     Legacy names kept ONLY as back-compat aliases → --accent / --clay. */
+  --accent: var(--brand);
+  --accent-soft: var(--brand-soft);
+  --cobalt: var(--accent);
+  --brand-tint: var(--brand-soft);
+  --sage: var(--brand);
+  --vermilion: var(--clay);
+  --highlighter: var(--clay);
+
+  /* content-vertical marker colours — desks tuned to the blush world.
+     Connect · Repair · Distance · Boundaries · Self. Muted, warm, distinct. */
+  --v-dev: #4e8577; /* Connect  — sage-teal */
+  --v-finance: #7c6aa8; /* Repair   — dusty violet */
+  --v-culture: #c46a5a; /* Distance — clay-rose */
+  --v-health: #b08a3e; /* Boundaries — warm ochre */
+  --v-personal: #7a6b78; /* Self     — mauve */
+
+  /* semantic passthroughs */
+  --color-bg: var(--paper);
+  --color-fg: var(--ink);
+  --color-accent: var(--brand);
+  --color-accent-fg: #f7ede8;
+  --color-sage: var(--success);
+  --color-muted: var(--ink-mute);
+  --color-border: var(--rule);
+  --color-bg-soft: var(--paper-2);
+  --color-bg-muted: var(--paper-2);
+  --color-prose: var(--ink);
+  --color-fg-muted: var(--ink-mute);
+  --color-fg-soft: var(--ink-mute);
+
+  /* color alias layer (chrome components read these) */
+  --color-brand-indigo: var(--brand);
+  --color-brand-indigo-soft: var(--brand-soft);
+  --color-brand-success: var(--success);
+  --color-brand-danger: var(--danger-color);
+  --color-neutral-0: #f7ede8;
+  --color-neutral-50: #efe0d9;
+  --color-neutral-100: #e8d8ce;
+  --color-neutral-200: #e2d1c8;
+  --color-neutral-300: #d3bcb0;
+  --color-neutral-500: #7a6b78;
+  --color-neutral-700: #574457;
+  --color-neutral-900: #3a2a3f;
+  --color-neutral-1000: #241426;
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-ink: var(--ink);
+  --color-ink-mute: var(--ink-mute);
+  --color-rule: var(--rule);
+
+  /* ── type ───────────────────────────────────────────────────────────
+     Families declared ONCE in global.css @theme (Tailwind emits --font-*).
+     Not duplicated here to avoid last-write-wins drift.
+     ─────────────────────────────────────────────────────────────────── */
+
+  --text-2xs: 10px;
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-md: 17px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+  --text-3xl: 48px;
+
+  /* spacing — 8 steps */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* motion — 3 durations + 3 easings */
+  --dur-fast: 120ms;
+  --dur-base: 220ms;
+  --dur-slow: 420ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* breakpoints */
+  --bp-sm: 480px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1440px;
+
+  /* radii + containers — soft, rounded (letters, not filing cards) */
+  --radius-card: 14px;
+  --radius-button: 999px;
+  --container-page: 1080px;
+}
+
+/* ── LIGHT — explicit user override (same as default identity) ──────── */
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+/* ── DARK — warm dusk, system preference unless user forced light ───── */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --brand: #7bb8a6; /* brightened sage for dark */
+    --brand-soft: #1e2b28;
+    --danger-color: #d9776a;
+    --clay: #d98874;
+    --paper: #211a24; /* warm plum-charcoal (not black) */
+    --paper-2: #2b2230; /* raised dusk panel */
+    --ink: #f0e6ec; /* soft blush-white text */
+    --ink-mute: #b09fac; /* muted mauve */
+    --rule: #3a2f40;
+    --rule-strong: #4a3c50;
+    --v-dev: #7bb8a6;
+    --v-finance: #a996d6;
+    --v-culture: #d98874;
+    --v-health: #d4ab5e;
+    --v-personal: #b09fac;
+    --color-accent-fg: #211a24;
+    --color-neutral-0: #211a24;
+    --color-neutral-50: #2b2230;
+    --color-neutral-100: #332839;
+    --color-neutral-200: #3a2f40;
+    --color-neutral-300: #4a3c50;
+    --color-neutral-500: #b09fac;
+    --color-neutral-700: #d6c8d2;
+    --color-neutral-900: #f0e6ec;
+  }
+}
+
+/* ── DARK — explicit user override, wins over system ────────────────── */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --brand: #7bb8a6;
+  --brand-soft: #1e2b28;
+  --danger-color: #d9776a;
+  --clay: #d98874;
+  --paper: #211a24;
+  --paper-2: #2b2230;
+  --ink: #f0e6ec;
+  --ink-mute: #b09fac;
+  --rule: #3a2f40;
+  --rule-strong: #4a3c50;
+  --v-dev: #7bb8a6;
+  --v-finance: #a996d6;
+  --v-culture: #d98874;
+  --v-health: #d4ab5e;
+  --v-personal: #b09fac;
+  --color-accent-fg: #211a24;
+  --color-neutral-0: #211a24;
+  --color-neutral-50: #2b2230;
+  --color-neutral-100: #332839;
+  --color-neutral-200: #3a2f40;
+  --color-neutral-300: #4a3c50;
+  --color-neutral-500: #b09fac;
+  --color-neutral-700: #d6c8d2;
+  --color-neutral-900: #f0e6ec;
+}
+
+/* ── HIGH-CONTRAST — warm-white / near-black plum, hard borders ─────── */
+:root[data-theme='hc'] {
+  color-scheme: light;
+  --brand: #1f5c4d;
+  --brand-soft: #d7e8e2;
+  --clay: #9c3324;
+  --paper: #fffdfb;
+  --paper-2: #fffdfb;
+  --ink: #1c1020;
+  --ink-mute: #2c2030;
+  --rule: #1c1020;
+  --rule-strong: #1c1020;
+  --color-accent-fg: #fffdfb;
+  --color-fg-soft: #2c2030;
+  --color-neutral-50: #fffdfb;
+  --color-neutral-100: #fffdfb;
+  --color-neutral-200: #1c1020;
+  --color-neutral-500: #2c2030;
+  --color-neutral-700: #1c1020;
+  --color-neutral-900: #1c1020;
+}

@@ -1,0 +1,466 @@
+---
+/**
+ * /  — Between homepage ("The Between").
+ *
+ * Hero = thesis (no big number, no gradient template): a plain-spoken
+ * statement that relationships live in the space between two people, set in
+ * Fraunces, with a single connective thread glyph drawn beside it.
+ *
+ * Below, the RECENT list is the signature element: a conversation. A vertical
+ * thread runs down the column; each post is a "turn" alternating left/right,
+ * anchored to a node on the thread. Relationships are the thread between two
+ * people — the layout holds that space literally.
+ *
+ * Desks (Connect / Repair / Distance / Boundaries / Self) each carry their
+ * own quiet marker colour (--v-*). No cover images, no cards.
+ */
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import {
+  getCategoriesWithCounts,
+  getPublishedPosts,
+  postVertical,
+  readingTimeFor,
+  slugifyTag,
+  verticalFor,
+  verticalLabel,
+} from '~/lib/blog'
+import { SITE_CONFIG } from '~/lib/config'
+
+const allPosts = await getPublishedPosts()
+const lead = allPosts[0]
+const recentPosts = allPosts.slice(1, 9)
+const cats = await getCategoriesWithCounts()
+
+const leadVertical = lead ? postVertical(lead) : 'personal'
+const leadRt = lead ? (lead.data.readingTime ?? readingTimeFor(lead)) : ''
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Blog',
+  name: SITE_CONFIG.title,
+  url: `${SITE_CONFIG.url}/`,
+  description: SITE_CONFIG.description,
+  author: { '@type': 'Person', name: SITE_CONFIG.author.name, url: SITE_CONFIG.author.url },
+}
+---
+
+<BaseLayout
+  title="Between — a relationships letter"
+  description={SITE_CONFIG.description}
+  jsonLd={jsonLd}
+  hideSidebar
+>
+  <div class="container-page">
+    {/* Hero — thesis. */}
+    <section class="hero" aria-label="Introduction">
+      <p class="hero-eyebrow mono">A relationships letter</p>
+      <h1 class="hero-thesis">
+        The relationship isn't you, and isn't them.
+        It's the <span class="hero-accent">space&nbsp;between</span> — and that's what you can tend.
+      </h1>
+      <p class="hero-lede">
+        Practical writing on saying the hard thing kindly, keeping love across
+        distance, and holding a boundary without a fight. Short letters you can
+        use the same day.
+      </p>
+      <p class="hero-actions">
+        <a class="hero-cta" href={lead ? `/blog/${lead.id}` : '/archive/'}>Read the latest letter</a>
+        <a class="hero-alt" href="/archive/">Browse the archive</a>
+      </p>
+    </section>
+
+    {lead && (
+      <section class="lead" data-vertical={leadVertical} aria-labelledby="lead-title">
+        <a class="lead-link" href={`/blog/${lead.id}`}>
+          <span class="lead-kicker mono">
+            <span class="lead-tick" aria-hidden="true"></span>
+            <span class="lead-desk">{verticalLabel(leadVertical)}</span>
+            <span class="lead-flag">Latest letter</span>
+          </span>
+          <h2 id="lead-title" class="lead-title">{lead.data.title}</h2>
+          <p class="lead-dek">{lead.data.description}</p>
+          <span class="lead-meta mono">
+            <time datetime={lead.data.pubDate.toISOString()}>{lead.data.pubDate.toISOString().slice(0, 10)}</time>
+            <span aria-hidden="true">·</span>
+            <span>{leadRt}</span>
+          </span>
+        </a>
+      </section>
+    )}
+
+    {/* Signature — the conversation thread. */}
+    <section class="thread-section" aria-labelledby="s-recent">
+      <h2 id="s-recent" class="section-h mono">The conversation</h2>
+      <ol class="thread" role="list">
+        {recentPosts.map((p, i) => (
+          <li class={`turn ${i % 2 === 0 ? 'turn-a' : 'turn-b'}`} data-vertical={postVertical(p)}>
+            <span class="turn-node" aria-hidden="true"></span>
+            <a class="turn-link" href={`/blog/${p.id}`}>
+              <span class="turn-kicker mono">
+                {verticalLabel(postVertical(p))}
+                <span class="turn-sep" aria-hidden="true">·</span>
+                <time datetime={p.data.pubDate.toISOString()}>{p.data.pubDate.toISOString().slice(0, 10)}</time>
+              </span>
+              <span class="turn-title">{p.data.title}</span>
+              <span class="turn-dek">{p.data.description}</span>
+              <span class="turn-rt mono">{p.data.readingTime ?? readingTimeFor(p)}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+      <p class="all-link">
+        <a href="/archive/">Read all {allPosts.length} letters →</a>
+      </p>
+    </section>
+
+    {/* Desks — one quiet typographic row. */}
+    {cats.length > 0 && (
+      <section class="desks" aria-labelledby="s-desks">
+        <h2 id="s-desks" class="section-h mono">By desk</h2>
+        <p class="desks-row">
+          {cats.map((c, i) => (
+            <>
+              {i > 0 && <span class="desks-dot" aria-hidden="true">·</span>}
+              <a href={`/categories/${slugifyTag(c.category)}/`} class="desks-link" data-vertical={verticalFor(c.category)}>
+                <span class="desks-name">{c.category}</span>
+                <span class="desks-count mono">({c.count})</span>
+              </a>
+            </>
+          ))}
+        </p>
+      </section>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+  .container-page {
+    max-width: 880px;
+    margin-inline: auto;
+    padding-inline: clamp(1.25rem, 4vw, 2rem);
+  }
+
+  /* ── Hero — thesis ─────────────────────────────────────────────────── */
+
+  .hero {
+    padding-block: clamp(3rem, 9vw, 6rem) clamp(2rem, 5vw, 3.25rem);
+    position: relative;
+  }
+  /* connective thread beside the thesis — the brand mark, drawn large */
+  .hero::before {
+    content: '';
+    position: absolute;
+    left: -1.25rem;
+    top: clamp(4.2rem, 11vw, 7rem);
+    bottom: clamp(4rem, 8vw, 5rem);
+    width: 2px;
+    background: linear-gradient(180deg, color-mix(in oklab, var(--ink) 40%, var(--paper)), var(--accent));
+    border-radius: 999px;
+  }
+  @media (max-width: 640px) {
+    .hero::before { display: none; }
+  }
+  .hero-eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 1.25rem;
+    font-weight: 500;
+  }
+  .hero-thesis {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-size: clamp(2.1rem, 6.5vw, 3.8rem);
+    font-weight: 380;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin: 0;
+    max-width: 15ch;
+  }
+  .hero-accent {
+    font-style: italic;
+    font-weight: 460;
+    color: var(--accent);
+  }
+  .hero-lede {
+    font-family: var(--font-body);
+    font-size: clamp(1.0625rem, 2.2vw, 1.25rem);
+    line-height: 1.6;
+    color: var(--ink-mute);
+    margin: 1.5rem 0 0;
+    max-width: 46ch;
+  }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    margin: 2rem 0 0;
+  }
+  .hero-cta {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--color-accent-fg);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    padding: 0.7rem 1.25rem;
+    border-radius: var(--radius-button);
+    text-decoration: none;
+    transition:
+      transform var(--dur-fast) var(--ease-out),
+      background var(--dur-fast) ease;
+  }
+  .hero-cta:hover {
+    transform: translateY(-1px);
+    background: color-mix(in oklab, var(--accent) 88%, var(--ink));
+  }
+  .hero-alt {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--ink-mute);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-color: var(--rule-strong);
+  }
+  .hero-alt:hover { color: var(--accent); text-decoration-color: var(--accent); }
+
+  /* ── Lead / latest letter ──────────────────────────────────────────── */
+
+  .lead {
+    --v: var(--v-personal);
+    padding: clamp(1.5rem, 4vw, 2rem);
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-card);
+    margin-bottom: clamp(2.5rem, 6vw, 4rem);
+  }
+  .lead[data-vertical='dev'] { --v: var(--v-dev); }
+  .lead[data-vertical='finance'] { --v: var(--v-finance); }
+  .lead[data-vertical='culture'] { --v: var(--v-culture); }
+  .lead[data-vertical='health'] { --v: var(--v-health); }
+  .lead-link { display: grid; gap: 0.625rem; color: var(--ink); text-decoration: none; }
+  .lead-kicker {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-mute);
+  }
+  .lead-tick { width: 8px; height: 8px; border-radius: 999px; background: var(--v); flex: 0 0 auto; }
+  .lead-desk { color: var(--v); font-weight: 500; }
+  .lead-flag { border-left: 1px solid var(--rule-strong); padding-left: 0.5rem; color: var(--accent); }
+  .lead-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 4vw, 2.35rem);
+    font-weight: 440;
+    letter-spacing: -0.02em;
+    line-height: 1.12;
+    margin: 0;
+    max-width: 22ch;
+  }
+  .lead-link:hover .lead-title { color: var(--accent); }
+  .lead-dek {
+    font-family: var(--font-body);
+    font-size: 1.0625rem;
+    line-height: 1.55;
+    color: var(--ink-mute);
+    margin: 0;
+    max-width: 58ch;
+  }
+  .lead-meta { display: inline-flex; gap: 0.5rem; font-size: 11px; letter-spacing: 0.06em; color: var(--ink-mute); }
+
+  /* ── Section heading ───────────────────────────────────────────────── */
+
+  .section-h {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--ink-mute);
+    font-weight: 500;
+    margin: 0 0 1.75rem;
+  }
+
+  /* ── Signature: the conversation thread ────────────────────────────── */
+
+  .thread-section {
+    padding-block: 0 clamp(2.5rem, 6vw, 3.5rem);
+  }
+  .thread {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+  }
+  /* the connective thread runs down the centre (desktop) / left (mobile) */
+  .thread::before {
+    content: '';
+    position: absolute;
+    top: 0.75rem;
+    bottom: 0.75rem;
+    left: 50%;
+    width: 2px;
+    margin-left: -1px;
+    background: color-mix(in oklab, var(--ink) 22%, var(--paper));
+    border-radius: 999px;
+  }
+  .turn {
+    --v: var(--v-personal);
+    position: relative;
+    width: calc(50% - 2.25rem);
+    padding-block: 1rem;
+  }
+  .turn-a { margin-right: auto; text-align: right; }
+  .turn-b { margin-left: auto; text-align: left; }
+  .turn[data-vertical='dev'] { --v: var(--v-dev); }
+  .turn[data-vertical='finance'] { --v: var(--v-finance); }
+  .turn[data-vertical='culture'] { --v: var(--v-culture); }
+  .turn[data-vertical='health'] { --v: var(--v-health); }
+
+  /* the node on the thread */
+  .turn-node {
+    position: absolute;
+    top: 1.6rem;
+    width: 11px;
+    height: 11px;
+    border-radius: 999px;
+    background: var(--paper);
+    border: 2px solid var(--v);
+    z-index: 1;
+    transition:
+      background var(--dur-fast) ease,
+      transform var(--dur-base) var(--ease-out);
+  }
+  .turn-a .turn-node { right: -2.75rem; }
+  .turn-b .turn-node { left: -2.75rem; }
+  .turn:hover .turn-node { background: var(--v); transform: scale(1.25); }
+
+  .turn-link {
+    display: grid;
+    gap: 0.3rem;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .turn-kicker {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--v);
+    font-weight: 500;
+    display: inline-flex;
+    gap: 0.4rem;
+    align-items: center;
+  }
+  .turn-a .turn-kicker { justify-content: flex-end; }
+  .turn-sep { color: var(--ink-mute); }
+  .turn-kicker time { color: var(--ink-mute); letter-spacing: 0.04em; }
+  .turn-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 440;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    line-height: 1.22;
+  }
+  .turn-link:hover .turn-title { color: var(--accent); }
+  .turn-dek {
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--ink-mute);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+  .turn-rt {
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--ink-mute);
+  }
+
+  @media (max-width: 640px) {
+    /* On mobile the thread moves to the left; every turn is a left turn. */
+    .thread::before { left: 5px; }
+    .turn,
+    .turn-a,
+    .turn-b {
+      width: 100%;
+      margin: 0;
+      text-align: left;
+      padding-left: 1.75rem;
+    }
+    .turn-a .turn-node,
+    .turn-b .turn-node { left: 0; right: auto; }
+    .turn-a .turn-kicker { justify-content: flex-start; }
+  }
+
+  .all-link {
+    margin: 2rem 0 0;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 13px;
+  }
+  .all-link a {
+    color: var(--ink-mute);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-color: var(--rule-strong);
+  }
+  .all-link a:hover { color: var(--accent); text-decoration-color: var(--accent); }
+
+  /* ── Desks (one row) ──────────────────────────────────────────────── */
+
+  .desks {
+    border-top: 1px solid var(--rule);
+    padding-block: clamp(2rem, 5vw, 3rem);
+  }
+  .desks-row {
+    margin: 0;
+    line-height: 2.1;
+    color: var(--ink);
+  }
+  .desks-link {
+    --v: var(--v-personal);
+    color: var(--ink);
+    text-decoration: none;
+    margin-inline: 0.125rem;
+  }
+  .desks-link[data-vertical='dev'] { --v: var(--v-dev); }
+  .desks-link[data-vertical='finance'] { --v: var(--v-finance); }
+  .desks-link[data-vertical='culture'] { --v: var(--v-culture); }
+  .desks-link[data-vertical='health'] { --v: var(--v-health); }
+  .desks-link:hover .desks-name { color: var(--v); }
+  .desks-name {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 440;
+    font-style: italic;
+    letter-spacing: -0.01em;
+  }
+  .desks-count {
+    color: var(--ink-mute);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    margin-left: 0.25rem;
+  }
+  .desks-dot { color: var(--rule-strong); margin-inline: 0.625rem; }
+
+  /* scroll-reveal for thread turns — respectful of reduced motion */
+  @media (prefers-reduced-motion: no-preference) {
+    .turn { opacity: 0; transform: translateY(10px); animation: turn-in 0.5s var(--ease-out) forwards; }
+    .turn:nth-child(1) { animation-delay: 0.02s; }
+    .turn:nth-child(2) { animation-delay: 0.08s; }
+    .turn:nth-child(3) { animation-delay: 0.14s; }
+    .turn:nth-child(4) { animation-delay: 0.2s; }
+    .turn:nth-child(5) { animation-delay: 0.26s; }
+    .turn:nth-child(n + 6) { animation-delay: 0.3s; }
+    @keyframes turn-in {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  }
+</style>

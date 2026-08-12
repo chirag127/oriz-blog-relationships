@@ -1,0 +1,86 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Chirag Singhal',
+  url: 'https://oriz.in/about/',
+  jobTitle: 'Software Engineer',
+  description:
+    'Software engineer specializing in scalable backend architectures, full-stack development, AI agents, and cloud-native deployments.',
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Bhubaneswar',
+    addressRegion: 'Odisha',
+    addressCountry: 'IN',
+  },
+  sameAs: [
+    'https://github.com/chirag127',
+    'https://x.com/chirag127',
+    'https://linkedin.com/in/chirag127',
+  ],
+}
+---
+
+<BaseLayout
+  title="About — Between"
+  description="About Between, a relationships letter — practical, warm writing on communication, distance, and boundaries."
+  jsonLd={jsonLd}
+  hideSidebar={true}
+>
+  <header class="page-head">
+    <p class="eyebrow"><a href="/">Between</a> / About</p>
+    <h1>About</h1>
+  </header>
+
+  <article class="prose">
+    <p class="lede">
+      Between is a relationships letter. Short, practical writing about the space
+      two people share — how to talk in it, protect it, and keep it alive across
+      distance.
+    </p>
+
+    <h2>What gets posted here</h2>
+    <p>
+      Letters you can use the same day: defusing a fight before it starts, saying
+      the hard thing kindly, holding a boundary without guilt, keeping love
+      steady when you live apart. No mysticism, no five-step cures — just clear
+      moves that tend to help real people in real relationships.
+    </p>
+
+    <h2>The idea behind it</h2>
+    <p>
+      A relationship isn't one person or the other. It's the <em>between</em> —
+      the thread that runs from you to them and back. That thread is the thing
+      you can actually tend, and most of what helps is smaller and plainer than
+      we expect. That's what this letter is for.
+    </p>
+
+    <h2>Who writes it</h2>
+    <p>
+      I'm Chirag Singhal. I write Between as part of the
+      <a href="https://oriz.in">oriz</a> family of sites — useful, free, and
+      quiet. No newsletters you didn't ask for, no popups, no paid tier.
+    </p>
+
+    <h2>Contact</h2>
+    <p>
+      Email: <a href="mailto:whyiswhen@gmail.com">whyiswhen@gmail.com</a>.
+      Or use the <a href="/contact/">contact form</a>.
+    </p>
+  </article>
+</BaseLayout>
+
+<style>
+  .page-head { padding-block: 3rem 1.5rem; border-bottom: 1px solid var(--color-border); max-width: var(--container-prose, 720px); margin-inline: auto; }
+  .eyebrow { color: var(--color-fg-muted); font-size: 0.8125rem; margin: 0 0 0.5rem; }
+  .eyebrow a { color: var(--color-fg-muted); text-decoration: none; }
+  .eyebrow a:hover { color: var(--color-fg); }
+  h1 { font-family: var(--font-serif); font-size: clamp(2rem, 4vw, 2.75rem); font-weight: 600; letter-spacing: -0.02em; margin: 0; }
+  .prose { padding-block: 2.5rem 4rem; color: var(--color-prose); line-height: 1.75; font-size: 1.0625rem; max-width: var(--container-prose, 720px); margin-inline: auto; }
+  .prose .lede { font-size: 1.1875rem; color: var(--color-fg); margin: 0 0 2rem; }
+  .prose h2 { font-family: var(--font-serif); font-size: 1.5rem; font-weight: 600; color: var(--color-fg); margin: 2.5rem 0 1rem; }
+  .prose p { margin: 0 0 1.25rem; }
+  .prose a { color: var(--color-accent); }
+</style>

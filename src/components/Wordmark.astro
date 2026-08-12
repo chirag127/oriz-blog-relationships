@@ -1,0 +1,130 @@
+---
+/*
+ * Wordmark — "Between".
+ *
+ * Two dots joined by a short thread — the relationship rendered as a mark:
+ * two people, and the connective space between them (the site's thesis). The
+ * name is set in Fraunces italic; the far dot + thread pick up the sage accent.
+ *
+ * Each oriz site owns its own mark; this one is specific to the relationships
+ * letter and shares only the mechanism (subtitle / size / href props).
+ */
+
+interface Props {
+  /** Sub-section name — rendered after the mark. */
+  subtitle?: string
+  /** Display size in CSS pixels. */
+  size?: number
+  /** Wrap the mark in an <a href="/">. */
+  href?: string | null
+  /** Render as <h1> (the masthead) rather than <div>. */
+  asHeading?: boolean
+}
+
+const { subtitle, size = 96, href = null, asHeading = false } = Astro.props
+const Tag = asHeading ? 'h1' : ('div' as const)
+---
+
+{
+  href ? (
+    <a class="wordmark-link" href={href} aria-label={subtitle ? `Between / ${subtitle}` : 'Between'}>
+      <Tag class="wordmark" style={`--wm-size: ${size}px;`}>
+        <span class="wordmark-mark" aria-hidden="true">
+          <span class="wm-dot wm-dot-a" />
+          <span class="wm-thread" />
+          <span class="wm-dot wm-dot-b" />
+        </span>
+        <span class="wordmark-name">Between</span>
+        {subtitle && (
+          <>
+            <span class="wordmark-sep" aria-hidden="true">
+              ·
+            </span>
+            <span class="wordmark-sub">{subtitle}</span>
+          </>
+        )}
+      </Tag>
+    </a>
+  ) : (
+    <Tag class="wordmark" style={`--wm-size: ${size}px;`}>
+      <span class="wordmark-mark" aria-hidden="true">
+        <span class="wm-dot wm-dot-a" />
+        <span class="wm-thread" />
+        <span class="wm-dot wm-dot-b" />
+      </span>
+      <span class="wordmark-name">Between</span>
+      {subtitle && (
+        <>
+          <span class="wordmark-sep" aria-hidden="true">
+            ·
+          </span>
+          <span class="wordmark-sub">{subtitle}</span>
+        </>
+      )}
+    </Tag>
+  )
+}
+
+<style>
+  .wordmark-link {
+    display: inline-block;
+    color: inherit;
+    text-decoration: none;
+  }
+  .wordmark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.42em;
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 560;
+    font-size: var(--wm-size, 96px);
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .wordmark-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.14em;
+    flex: 0 0 auto;
+  }
+  .wm-dot {
+    width: 0.34em;
+    height: 0.34em;
+    border-radius: 999px;
+    display: inline-block;
+  }
+  .wm-dot-a {
+    background: var(--ink);
+  }
+  .wm-dot-b {
+    background: var(--accent);
+  }
+  .wm-thread {
+    width: 0.5em;
+    height: 2px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--ink), var(--accent));
+    display: inline-block;
+  }
+  .wordmark-name {
+    font-style: italic;
+  }
+  .wordmark-sep {
+    margin-left: 0.1em;
+    color: var(--ink-mute);
+    font-weight: 400;
+    font-style: normal;
+  }
+  .wordmark-sub {
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.42em;
+    letter-spacing: 0.04em;
+    text-transform: lowercase;
+    font-style: normal;
+    align-self: center;
+  }
+</style>
